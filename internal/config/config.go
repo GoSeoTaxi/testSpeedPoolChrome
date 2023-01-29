@@ -17,6 +17,7 @@ import (
 type Config struct {
 	StartCopy string `env:"START_COPY"`
 	Debug     bool   `env:"SERVER_DEBUG"`
+	FileLines string `env:"FILES_LINES"`
 	Path      string `env:"TEMP_PATH"`
 	PathFiles string `env:"FILES_PATH"`
 	//	URLImport    string `env:"URLS_IMPORT"`
@@ -37,6 +38,7 @@ func initConfig() (*Config, error) {
 	flag.StringVar(&cfg.TimeDurectionTest, "timeD", strconv.Itoa(constants.TimeDur), "timeD=3600")
 	flag.StringVar(&cfg.StartCopy, "t", "1", "t=1")
 	flag.BoolVar(&cfg.Debug, "debug", false, "debug=true")
+	flag.StringVar(&cfg.FileLines, "csv", constants.ImportCSV, "csv=/tmp/import.csv")
 	flag.StringVar(&cfg.Path, "path", constants.TPath, "path=/tmp/Profiles")
 	flag.StringVar(&cfg.PathFiles, "pathFiles", constants.PathFiles, "pathFiles=/tmp/folder")
 	//	flag.StringVar(&cfg.URLImport, "urlI", constants.UrlI, "urlI=http://avtozzzapchasti.ru/rest/get_items/")
@@ -53,19 +55,25 @@ func initConfig() (*Config, error) {
 
 	//проверяем папку для профилей
 	if _, err := os.Stat(cfg.Path); os.IsNotExist(err) {
-		fmt.Println("Папки для файлов нет, поэтому мы её создаём.")
-		err = os.Mkdir(cfg.PathFiles, os.ModePerm)
+		fmt.Println("Папки для файлов нет, поэтому мы её создаём1")
+		fmt.Println(err)
+		err = os.Mkdir(cfg.Path, os.ModePerm)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(`++++1`)
+			//log.Fatal(err)
+			fmt.Println(err)
+			fmt.Println(`+++++1`)
 		}
 	}
 
 	//проверяем папку для картинок
 	if _, err := os.Stat(cfg.PathFiles); os.IsNotExist(err) {
-		fmt.Println("Папки для файлов нет, поэтому мы её создаём.")
+		fmt.Println("Папки для файлов нет, поэтому мы её создаём2")
 		err = os.Mkdir(cfg.PathFiles, os.ModePerm)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(`++++2`)
+			fmt.Println(err)
+			fmt.Println(`+++++2`)
 		}
 
 	}
@@ -102,13 +110,17 @@ func InitConfigsWithSendData() (*Config, error) {
 			timeDur = constants.TimeDur
 		}
 
+		urlsList := uRLsListImport(cfg.FileLines)
+		fmt.Println(urlsList[2])
+
 		//time.Sleep(time.Duration(timeOut+2) * time.Second)
 		for {
 			if t1.Add(time.Duration(timeDur) * time.Second).After(time.Now()) {
 
+				//ТУТ
 				rand.Seed(time.Now().UnixNano())
-				//cfg.TaskSC <- constants.URLsList[rand.Intn(len(constants.URLsList))]
-				cfg.TaskSC <- "https://www.google.com/search?q=" + strconv.Itoa(time.Now().Nanosecond())
+				cfg.TaskSC <- urlsList[rand.Intn(len(urlsList))]
+				//cfg.TaskSC <- "https://www.google.com/search?q=" + strconv.Itoa(time.Now().Nanosecond())
 			} else {
 				close(cfg.TaskSC)
 				break

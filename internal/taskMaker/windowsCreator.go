@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/chromedp/chromedp"
 	"log"
+	"path/filepath"
 	"strconv"
 	"sync/atomic"
 	"testSpeedPoolChrome/internal/config"
@@ -14,7 +15,14 @@ import (
 func WorkerMaker(numTrade int, cfg *config.Config) {
 
 	func() {
-		pathChrome := cfg.Path + strconv.Itoa(numTrade)
+
+		pathChrome := filepath.Join(cfg.Path, strconv.Itoa(numTrade))
+
+		//		pathChrome := cfg.Path + strconv.Itoa(numTrade)
+
+		fmt.Println(`++++====++++`)
+		fmt.Println(pathChrome)
+		fmt.Println(`++++====++++`)
 
 		opts := append(chromedp.DefaultExecAllocatorOptions[:],
 			chromedp.Flag("user-data-dir", pathChrome),
